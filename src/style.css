@@ -1,0 +1,263 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #4f6ef7;
+  --danger: #f25c54;
+  --bg: #f5f7ff;
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --muted: #8891aa;
+  --radius: 16px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header h1 {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 32px;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* 麦克风按钮 */
+.status-ring {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  box-shadow: 0 4px 20px rgba(79,110,247,.15);
+  transition: all .3s;
+}
+
+.status-ring.recording {
+  background: linear-gradient(135deg, #f25c54, #f97b6b);
+  box-shadow: 0 0 0 8px rgba(242,92,84,.2), 0 4px 20px rgba(242,92,84,.3);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-ring.connecting {
+  background: var(--surface);
+  box-shadow: 0 0 0 8px rgba(79,110,247,.15);
+  animation: spin-ring 1s linear infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 8px rgba(242,92,84,.2); }
+  50% { box-shadow: 0 0 0 16px rgba(242,92,84,.08); }
+}
+
+@keyframes spin-ring {
+  to { transform: rotate(360deg); }
+}
+
+.mic-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .15s;
+}
+
+.mic-btn:active { transform: scale(.93); }
+.mic-btn:disabled { opacity: .5; cursor: not-allowed; }
+.recording .mic-btn { background: transparent; }
+.mic-btn svg { width: 32px; height: 32px; }
+
+.status-label {
+  font-size: .9rem;
+  color: var(--muted);
+  height: 20px;
+}
+
+.recording-dot::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--danger);
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .2; }
+}
+
+/* 文字结果 */
+.result-box {
+  width: 100%;
+  min-height: 200px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  position: relative;
+}
+
+.committed-text { color: var(--text); }
+.interim-text { color: var(--muted); }
+.placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--muted);
+  font-size: .9rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* 操作按钮 */
+.actions { display: flex; gap: 12px; }
+
+.action-btn {
+  padding: 8px 24px;
+  border-radius: 8px;
+  border: 1.5px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: .9rem;
+  transition: all .15s;
+}
+
+.action-btn:hover { background: var(--primary); color: white; }
+.action-btn.danger { border-color: var(--danger); color: var(--danger); }
+.action-btn.danger:hover { background: var(--danger); color: white; }
+
+/* 错误提示 */
+.error-bar {
+  width: 100%;
+  background: #fff2f2;
+  border: 1px solid #ffc5c5;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: var(--danger);
+  font-size: .875rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-bar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--danger);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* 配置面板 */
+.config-panel {
+  width: 100%;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.config-panel h3 { font-size: 1rem; font-weight: 600; }
+
+.config-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.config-panel input {
+  padding: 10px 12px;
+  border: 1.5px solid #e0e4f0;
+  border-radius: 8px;
+  font-size: .95rem;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.config-panel input:focus { border-color: var(--primary); }
+
+.save-btn {
+  padding: 10px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .95rem;
+  transition: opacity .15s;
+}
+
+.save-btn:hover { opacity: .88; }
+
+.mic-test {
+  width: 100%;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  margin-top: 8px;
+}
+
+.mic-test-title {
+  font-size: .85rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.mic-test-controls { display: flex; gap: 10px; }
+
+/* 底部 */
+footer { text-align: center; padding-top: 16px; }
+
+.config-toggle {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .85rem;
+}
+
+.config-toggle:hover { color: var(--primary); }
