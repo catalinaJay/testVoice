@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <header>
-      <h1>实时语音转文字</h1>
+      <h1>实时语音转文本</h1>
     </header>
 
     <main>
@@ -53,11 +53,11 @@
 
     <div v-if="showConfig" class="config-panel">
       <h3>腾讯云配置</h3>
-      <label>APPID<input v-model="config.appId" placeholder="请输入腾讯云 APPID" /></label>
+      <label>APPID<input v-model="config.appId" placeholder="腾讯云 APPID，必须是纯数字" /></label>
       <label>SecretId<input v-model="config.secretId" placeholder="请输入 SecretId" /></label>
       <label>SecretKey<input v-model="config.secretKey" placeholder="请输入 SecretKey" /></label>
       <p class="config-hint">
-        原生识别可以直接使用；腾讯云作为云端备用引擎。这里填的是腾讯云控制台里的凭证。
+        这里填写的是腾讯云控制台里的实时语音识别凭证，不是讯飞的 key。
       </p>
       <div class="config-actions">
         <button class="action-btn" @click="saveConfig">保存配置</button>
@@ -67,7 +67,7 @@
 
     <footer>
       <button class="config-toggle" @click="showConfig = !showConfig">
-        {{ showConfig ? '收起配置' : '配置云端引擎' }}
+        {{ showConfig ? '收起配置' : '配置腾讯云引擎' }}
       </button>
     </footer>
   </div>
@@ -106,7 +106,19 @@ function hasNativeSpeechRecognition() {
 }
 
 function hasTencentConfig() {
-  return Boolean(config.appId && config.secretId && config.secretKey)
+  return Boolean(config.appId && config.secretId && config.secretKey && /^\d+$/.test(config.appId))
+}
+
+function getTencentConfigError() {
+  if (!config.appId || !config.secretId || !config.secretKey) {
+    return '请先填写腾讯云 APPID、SecretId 和 SecretKey。'
+  }
+
+  if (!/^\d+$/.test(config.appId)) {
+    return `腾讯云 APPID 必须是纯数字，你现在填的 "${config.appId}" 不是有效的 APPID。`
+  }
+
+  return '请先填写腾讯云 APPID、SecretId 和 SecretKey。'
 }
 
 function cycleEngine() {
@@ -137,7 +149,7 @@ function createAsr() {
 
   if (engineMode.value === 'native') {
     if (!hasNativeSpeechRecognition()) {
-      throw new Error('当前浏览器不支持原生语音识别，请切换到腾讯云或使用 Chrome / Edge。')
+      throw new Error('当前浏览器不支持原生语音识别，请切换到腾讯云引擎，或使用 Chrome / Edge。')
     }
     return new NativeSpeechASR(handlers)
   }
@@ -145,7 +157,7 @@ function createAsr() {
   if (engineMode.value === 'tencent') {
     if (!hasTencentConfig()) {
       showConfig.value = true
-      throw new Error('请先填写并保存腾讯云 APPID、SecretId 和 SecretKey。')
+      throw new Error(getTencentConfigError())
     }
     return new TencentSpeechASR({
       appId: config.appId,
@@ -169,7 +181,7 @@ function createAsr() {
   }
 
   showConfig.value = true
-  throw new Error('当前浏览器不支持原生语音识别，请先配置腾讯云云端备用引擎。')
+  throw new Error('当前浏览器不支持原生语音识别，请先配置腾讯云备用引擎。')
 }
 
 function toggle() {
@@ -227,6 +239,9 @@ function saveConfig() {
   localStorage.setItem('tencent_appid', config.appId)
   localStorage.setItem('tencent_secret_id', config.secretId)
   localStorage.setItem('tencent_secret_key', config.secretKey)
+  localStorage.removeItem('xunfei_appid')
+  localStorage.removeItem('xunfei_api_key')
+  localStorage.removeItem('xunfei_api_secret')
   showConfig.value = false
   errorMsg.value = ''
 }

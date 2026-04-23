@@ -17,7 +17,7 @@ export class NativeSpeechASR {
   start() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SpeechRecognition) {
-      this.onError?.(new Error('当前浏览器不支持语音识别，请使用 Chrome / Edge，或切换到云端备用引擎。'))
+      this.onError?.(new Error('当前浏览器不支持语音识别，请使用 Chrome / Edge，或切换到腾讯云引擎。'))
       return
     }
 
@@ -47,6 +47,10 @@ export class NativeSpeechASR {
 
     this.recognition.onerror = (event) => {
       if (event.error === 'no-speech') return
+      if (event.error === 'network') {
+        this.onError?.(new Error('原生语音识别报 network：通常是浏览器内置识别服务不可达。请检查网络、浏览器权限，或者直接切换到腾讯云引擎。'))
+        return
+      }
       this.onError?.(new Error(`语音识别错误: ${event.error}`))
     }
 

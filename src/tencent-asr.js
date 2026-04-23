@@ -68,6 +68,16 @@ function extractText(resultList) {
   return resultList.voice_text_str || ''
 }
 
+function validateTencentConfig({ appId, secretId, secretKey }) {
+  if (!appId || !secretId || !secretKey) {
+    throw new Error('请先填写腾讯云 APPID、SecretId 和 SecretKey。')
+  }
+
+  if (!/^\d+$/.test(String(appId))) {
+    throw new Error(`腾讯云 APPID 必须是纯数字，你现在填的 "${appId}" 不是有效的 APPID。`)
+  }
+}
+
 export class TencentSpeechASR {
   constructor({ appId, secretId, secretKey, onResult, onError, onStatusChange }) {
     this.appId = appId
@@ -91,6 +101,11 @@ export class TencentSpeechASR {
   async start() {
     try {
       this.onStatusChange?.('connecting')
+      validateTencentConfig({
+        appId: this.appId,
+        secretId: this.secretId,
+        secretKey: this.secretKey,
+      })
       this.pendingAudio = new Uint8Array(0)
       this.voiceId = uuid()
       this.handshakeReady = false
